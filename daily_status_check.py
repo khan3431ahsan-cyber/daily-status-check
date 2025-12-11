@@ -3,12 +3,10 @@ import pandas as pd
 from datetime import datetime, timedelta
 import smtplib, ssl
 from email.message import EmailMessage
-import requests
-from io import BytesIO
 
 # ----------------- CONFIG -----------------
 
-EXCEL_URL = os.getenv("EXCEL_URL")  # Online Excel/CSV URL
+EXCEL_URL = os.getenv("EXCEL_URL")  # Direct .xlsx file URL (publicly accessible)
 EMAIL_USER = os.getenv("EMAIL_USER")      # Sender email (Gmail SMTP)
 EMAIL_PASS = os.getenv("EMAIL_PASS")      # Sender email password / App Password
 EMAIL_RECIPIENT = "haseebahmed2624@gmail.com"  # Fixed recipient
@@ -24,17 +22,9 @@ COL_STATUS = "Status"
 # ------------------------------------------
 
 def load_excel(url):
-    """Load Excel or CSV from URL safely"""
-    if url.endswith(".csv"):
-        df = pd.read_csv(url)
-    else:
-        # For xlsx, download file first and read with openpyxl engine
-        resp = requests.get(url)
-        resp.raise_for_status()  # Fail if request fails
-        df = pd.read_excel(BytesIO(resp.content), engine='openpyxl')
-
-    # Clean column names
-    df.columns = [c.strip() for c in df.columns]
+    """Load online Excel file using pandas + openpyxl (read-only)"""
+    df = pd.read_excel(url, engine='openpyxl')
+    df.columns = [c.strip() for c in df.columns]  # clean column names
     return df
 
 
