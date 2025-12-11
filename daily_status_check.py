@@ -11,8 +11,9 @@ EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
 EMAIL_RECIPIENT = "haseebahmed2624@gmail.com"
 
-# Check yesterday’s date by default
-target_date = (datetime.utcnow() - timedelta(days=1)).date()
+# ----------------- TESTING -----------------
+# Set target date manually for testing
+target_date = pd.to_datetime("2025-03-12").date()  # 12th March 2025
 
 # Required columns
 COL_MEMBER = "Member Name"
@@ -22,7 +23,7 @@ COL_STATUS = "Status"
 # ------------------------------------------
 
 def load_excel(url):
-    """Load online Excel file directly using pandas + openpyxl"""
+    """Load online Excel file using pandas + openpyxl"""
     df = pd.read_excel(url, engine='openpyxl')
     df.columns = [c.strip() for c in df.columns]  # clean column names
     return df
@@ -53,15 +54,16 @@ def main():
     # Filter for target date
     todays_data = df[df[COL_DATE] == target_date]
 
-    # All members
-    all_members = df[COL_MEMBER].unique()
+    # List of all unique employees
+    all_members = df[COL_MEMBER].unique() if not df.empty else []
 
-    # Members who submitted
-    submitted_members = todays_data[COL_MEMBER].unique()
+    # Members who submitted status report
+    submitted_members = todays_data[COL_MEMBER].unique() if not todays_data.empty else []
 
-    # Missing members
+    # Members who did NOT submit
     missing_members = [m for m in all_members if m not in submitted_members]
 
+    # ONLY send email if there are missing members
     if missing_members:
         lines = [
             f"Daily Status Report Check — Missing Reports for {target_date}",
@@ -74,7 +76,8 @@ def main():
         email_body = "\n".join(lines)
         send_email(subject=f"Missing Status Reports — {target_date}", body=email_body)
     else:
-        print("All members submitted their status report.")
+        print("All members submitted their status report or no data for this date.")
+        # No email will be sent if no one is missing
 
 
 if __name__ == "__main__":
