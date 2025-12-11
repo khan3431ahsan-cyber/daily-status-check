@@ -22,9 +22,9 @@ COL_STATUS = "Status"
 # ------------------------------------------
 
 def load_excel(url):
-    """Load online Excel file using pandas + openpyxl (read-only)"""
-    df = pd.read_excel(url, engine='openpyxl')
-    df.columns = [c.strip() for c in df.columns]  # clean column names
+    """Load CSV from Google Sheets export link"""
+    df = pd.read_csv(url)
+    df.columns = [c.strip() for c in df.columns]
     return df
 
 
