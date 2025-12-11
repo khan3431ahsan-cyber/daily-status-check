@@ -7,9 +7,9 @@ from email.message import EmailMessage
 # ----------------- CONFIG -----------------
 
 EXCEL_URL = os.getenv("EXCEL_URL")  # Direct XLSX export link
-EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
-EMAIL_RECIPIENT = "haseebahmed2624@gmail.com"
+EMAIL_USER = os.getenv("EMAIL_USER")  # Your Gmail sender email
+EMAIL_PASS = os.getenv("EMAIL_PASS")  # Gmail App Password
+EMAIL_RECIPIENT = "khan3431ahsan@gmail.com"  # Updated recipient
 
 # ----------------- TESTING -----------------
 # Set target date manually for testing
