@@ -3,14 +3,15 @@ import pandas as pd
 from datetime import datetime, timedelta
 import smtplib, ssl
 from email.message import EmailMessage
+import requests
+from io import BytesIO
 
 # ----------------- CONFIG -----------------
 
 EXCEL_URL = os.getenv("EXCEL_URL")  # Online Excel/CSV URL
-
 EMAIL_USER = os.getenv("EMAIL_USER")      # Sender email (Gmail SMTP)
 EMAIL_PASS = os.getenv("EMAIL_PASS")      # Sender email password / App Password
-EMAIL_RECIPIENT = "haseebahmed2624@gmail.com"  # <-- Your email (fixed)
+EMAIL_RECIPIENT = "haseebahmed2624@gmail.com"  # Fixed recipient
 
 # Default: check yesterday’s date
 target_date = (datetime.utcnow() - timedelta(days=1)).date()
@@ -23,17 +24,22 @@ COL_STATUS = "Status"
 # ------------------------------------------
 
 def load_excel(url):
-    """Load Excel online (supports .csv or .xlsx)"""
+    """Load Excel or CSV from URL safely"""
     if url.endswith(".csv"):
         df = pd.read_csv(url)
     else:
-        df = pd.read_excel(url)
+        # For xlsx, download file first and read with openpyxl engine
+        resp = requests.get(url)
+        resp.raise_for_status()  # Fail if request fails
+        df = pd.read_excel(BytesIO(resp.content), engine='openpyxl')
 
-    df.columns = [c.strip() for c in df.columns]  # clean column names
+    # Clean column names
+    df.columns = [c.strip() for c in df.columns]
     return df
 
 
 def send_email(subject, body):
+    """Send email via Gmail SMTP"""
     msg = EmailMessage()
     msg['From'] = EMAIL_USER
     msg['To'] = EMAIL_RECIPIENT
