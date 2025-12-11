@@ -1,0 +1,33 @@
+name: Daily Status Report Checker
+
+on:
+  schedule:
+    # Run every day at 1:00 AM UTC (you can change this)
+    - cron: "0 1 * * *"
+  workflow_dispatch:  # Allow manual run
+
+jobs:
+  check_status:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas openpyxl
+
+      - name: Run Status Check Script
+        env:
+          EXCEL_URL: ${{ secrets.EXCEL_URL }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        run: |
+          python check_missing_status.py
