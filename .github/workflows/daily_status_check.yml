@@ -2,8 +2,8 @@ name: Daily Status Report Checker
 
 on:
   schedule:
-    # Every day 1:00 AM UTC
-    - cron: "0 1 * * *"
+    # Every day 1:00 AM Pakistan time (UTC+5)
+    - cron: "0 20 * * *"  # 20:00 UTC = 1:00 AM PKT
   workflow_dispatch:  # Manual run
 
 jobs:
@@ -21,13 +21,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      #  Install dependencies
+      # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pandas openpyxl
 
-      #  Run the daily status check script
+      # Run the daily status check script
       - name: Run Status Check Script
         env:
           EXCEL_URL: ${{ secrets.EXCEL_URL }}
