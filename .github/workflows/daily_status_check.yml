@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      #  Checkout repository
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      #  Setup Python
+      # Setup Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -27,7 +27,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas openpyxl
 
-      # Run the daily status check script
+      #  Run the daily status check script
       - name: Run Status Check Script
         env:
           EXCEL_URL: ${{ secrets.EXCEL_URL }}
