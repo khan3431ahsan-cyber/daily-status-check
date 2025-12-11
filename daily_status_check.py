@@ -6,12 +6,12 @@ from email.message import EmailMessage
 
 # ----------------- CONFIG -----------------
 
-EXCEL_URL = os.getenv("EXCEL_URL")  # Direct .xlsx file URL (publicly accessible)
-EMAIL_USER = os.getenv("EMAIL_USER")      # Sender email (Gmail SMTP)
-EMAIL_PASS = os.getenv("EMAIL_PASS")      # Sender email password / App Password
-EMAIL_RECIPIENT = "haseebahmed2624@gmail.com"  # Fixed recipient
+EXCEL_URL = os.getenv("EXCEL_URL")  # Direct XLSX export link
+EMAIL_USER = os.getenv("EMAIL_USER")
+EMAIL_PASS = os.getenv("EMAIL_PASS")
+EMAIL_RECIPIENT = "haseebahmed2624@gmail.com"
 
-# Default: check yesterday’s date
+# Check yesterday’s date by default
 target_date = (datetime.utcnow() - timedelta(days=1)).date()
 
 # Required columns
@@ -22,9 +22,9 @@ COL_STATUS = "Status"
 # ------------------------------------------
 
 def load_excel(url):
-    """Load CSV from Google Sheets export link"""
-    df = pd.read_csv(url)
-    df.columns = [c.strip() for c in df.columns]
+    """Load online Excel file directly using pandas + openpyxl"""
+    df = pd.read_excel(url, engine='openpyxl')
+    df.columns = [c.strip() for c in df.columns]  # clean column names
     return df
 
 
@@ -53,34 +53,26 @@ def main():
     # Filter for target date
     todays_data = df[df[COL_DATE] == target_date]
 
-    # List of all unique employees
+    # All members
     all_members = df[COL_MEMBER].unique()
 
-    # List of members who submitted status report
+    # Members who submitted
     submitted_members = todays_data[COL_MEMBER].unique()
 
-    # Members who did NOT submit
+    # Missing members
     missing_members = [m for m in all_members if m not in submitted_members]
 
     if missing_members:
-        # Prepare email body
         lines = [
             f"Daily Status Report Check — Missing Reports for {target_date}",
             "",
             "The following members did NOT submit their daily report:",
             ""
         ]
-
-        for member in missing_members:
-            lines.append(f"- {member}")
-
+        for m in missing_members:
+            lines.append(f"- {m}")
         email_body = "\n".join(lines)
-
-        send_email(
-            subject=f"Missing Status Reports — {target_date}",
-            body=email_body
-        )
-
+        send_email(subject=f"Missing Status Reports — {target_date}", body=email_body)
     else:
         print("All members submitted their status report.")
 
